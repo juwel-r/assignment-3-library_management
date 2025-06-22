@@ -41,7 +41,7 @@ booksRouter.get("/:id", async (req: Request, res: Response) => {
   });
 });
 
-booksRouter.patch("/:id", async (req: Request, res: Response) => {
+booksRouter.put("/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
   const updateData = req.body;
   let books = await Book.findByIdAndUpdate(id, updateData, {
