@@ -1,3 +1,5 @@
+import { Model } from "mongoose";
+
 export interface Books {
   title: string;
   author: string;
@@ -12,4 +14,8 @@ export interface Books {
   description: string;
   copies: number;
   available: boolean;
+}
+
+export interface BookAvailability extends Model<Books> {
+  borrowProcess(bookId: string, quantity: number): any;
 }

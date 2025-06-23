@@ -1,18 +1,35 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import { Book } from "../models/books.model";
-import { AnyArray } from "mongoose";
+import { z } from "zod";
 
 export const booksRouter = express.Router();
 
-booksRouter.post("/", async (req: Request, res: Response) => {
-  const data = req.body;
-  const book = await Book.create(data);
-  res.status(201).json({
-    success: true,
-    message: "Book created successfully",
-    data: book,
-  });
+const bookZod = z.object({
+  title: z.string(),
+  author: z.string(),
+  genre: z.string(),
+  isbn: z.string(),
+  description: z.string().optional(),
+  copies: z.number(),
+  available: z.boolean(),
 });
+
+booksRouter.post(
+  "/",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await bookZod.parseAsync(req.body);
+      const book = await Book.create(data);
+      res.status(201).json({
+        success: true,
+        message: "Book created successfully",
+        data: book,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 booksRouter.get("/", async (req: Request, res: Response) => {
   let { filter, sortBy, sort, limit } = req.query;
@@ -30,21 +47,28 @@ booksRouter.get("/", async (req: Request, res: Response) => {
   });
 });
 
-booksRouter.get("/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  console.log(id);
-  let books = await Book.findById(id);
-  res.status(200).json({
-    success: true,
-    message: "Books retrieved successfully",
-    data: books,
-  });
-});
+booksRouter.get(
+  "/:bookId",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { bookId } = req.params;
+      let books = await Book.findById(bookId);
 
-booksRouter.put("/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
+      res.status(200).json({
+        success: true,
+        message: "Books retrieved successfully",
+        data: books,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+booksRouter.put("/:bookId", async (req: Request, res: Response) => {
+  const { bookId } = req.params;
   const updateData = req.body;
-  let books = await Book.findByIdAndUpdate(id, updateData, {
+  let books = await Book.findByIdAndUpdate(bookId, updateData, {
     new: true,
     runValidators: true,
   });
@@ -55,9 +79,9 @@ booksRouter.put("/:id", async (req: Request, res: Response) => {
   });
 });
 
-booksRouter.delete("/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  let books = await Book.findByIdAndDelete(id);
+booksRouter.delete("/:bookId", async (req: Request, res: Response) => {
+  const { bookId } = req.params;
+  await Book.findByIdAndDelete(bookId);
   res.status(200).json({
     success: true,
     message: "Books deleted successfully",

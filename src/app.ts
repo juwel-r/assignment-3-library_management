@@ -1,18 +1,41 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import { booksRouter } from "./app/controllers/books.controller";
 import { borrowBook } from "./app/controllers/borrowBook.controller";
+import { error } from "console";
 const app = express();
 app.use(express.json());
 
 app.use("/api/books", booksRouter);
-app.use("/api/borrow", borrowBook)
+app.use("/api/borrow", borrowBook);
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Library management Server Running!");
+app.get("/", (req: Request, res: Response, next: NextFunction) => {
+  try {
+    res.send("Library management Server Running!");
+  } catch (error) {
+    next(error);
+  }
 });
-  
+
 //Need to implement error Handler
-// app.use((err, req:Request, res:Response, next)=>{})
+app.use((req: Request, res: Response) => {
+  res.status(400).json({
+    success: false,
+    message: "Route not found!",
+  });
+});
+
+app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+  if (error) {
+    res.status(400).json({
+      message: "Validation failed",
+      success: false,
+      error: {
+        name: error.name,
+        errors: error.errors,
+      },
+    });
+  }
+});
 
 export default app;
 
