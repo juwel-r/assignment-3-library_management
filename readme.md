@@ -52,11 +52,10 @@ npm run prod
 
 ## 🛠️ Configuration
 
-Update your `.env` file:
+Update `.env` file:
 
 ```env
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/library_db
+MONGODB_URI=mongodb://localhost:27017/library_management
 ```
 
 ---
