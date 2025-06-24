@@ -1,18 +1,8 @@
 import express, { NextFunction, Request, Response } from "express";
 import { Book } from "../models/books.model";
-import { z } from "zod";
+import { bookZod } from "../../utils/zodValidation";
 
 export const booksRouter = express.Router();
-
-const bookZod = z.object({
-  title: z.string(),
-  author: z.string(),
-  genre: z.string(),
-  isbn: z.string(),
-  description: z.string().optional(),
-  copies: z.number(),
-  available: z.boolean(),
-});
 
 booksRouter.post(
   "/",
@@ -31,21 +21,28 @@ booksRouter.post(
   }
 );
 
-booksRouter.get("/", async (req: Request, res: Response) => {
-  let { filter, sortBy, sort, limit } = req.query;
-  const query = filter ? { genre: filter } : {};
+booksRouter.get(
+  "/",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let { filter, sortBy, sort, limit } = req.query;
+      const query = filter ? { genre: filter } : {};
 
-  let books = await Book.find(query)
-    .sort({
-      [sortBy as string]: sort === "asc" ? "asc" : "desc",
-    })
-    .limit(limit ? parseInt(limit as string) : 0);
-  res.status(200).json({
-    success: true,
-    message: "Books retrieved successfully",
-    data: books,
-  });
-});
+      let books = await Book.find(query)
+        .sort({
+          [sortBy as string]: sort === "asc" ? "asc" : "desc",
+        })
+        .limit(limit ? parseInt(limit as string) : 0);
+      res.status(200).json({
+        success: true,
+        message: "Books retrieved successfully",
+        data: books,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 booksRouter.get(
   "/:bookId",
@@ -65,26 +62,40 @@ booksRouter.get(
   }
 );
 
-booksRouter.put("/:bookId", async (req: Request, res: Response) => {
-  const { bookId } = req.params;
-  const updateData = req.body;
-  let books = await Book.findByIdAndUpdate(bookId, updateData, {
-    new: true,
-    runValidators: true,
-  });
-  res.status(200).json({
-    success: true,
-    message: "Books updated successfully",
-    data: books,
-  });
-});
+booksRouter.put(
+  "/:bookId",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { bookId } = req.params;
+      const updateData = req.body;
+      let books = await Book.findByIdAndUpdate(bookId, updateData, {
+        new: true,
+        runValidators: true,
+      });
+      res.status(200).json({
+        success: true,
+        message: "Books updated successfully",
+        data: books,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
-booksRouter.delete("/:bookId", async (req: Request, res: Response) => {
-  const { bookId } = req.params;
-  await Book.findByIdAndDelete(bookId);
-  res.status(200).json({
-    success: true,
-    message: "Books deleted successfully",
-    data: null,
-  });
-});
+booksRouter.delete(
+  "/:bookId",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { bookId } = req.params;
+      await Book.findByIdAndDelete(bookId);
+      res.status(200).json({
+        success: true,
+        message: "Books deleted successfully",
+        data: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
