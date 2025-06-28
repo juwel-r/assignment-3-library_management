@@ -32,7 +32,7 @@ booksRouter.get(
         .sort({
           [sortBy as string]: sort === "asc" ? "asc" : "desc",
         })
-        .limit(limit ? parseInt(limit as string) : 0);
+        .limit(limit ? parseInt(limit as string) : 10);
       res.status(200).json({
         success: true,
         message: "Books retrieved successfully",

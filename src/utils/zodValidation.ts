@@ -13,5 +13,7 @@ export const bookZod = z.object({
 export const borrowZod = z.object({
   book: z.string(),
   quantity: z.number(),
-  dueDate: z.date().optional(),
+  dueDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
+      message: "dueDate must be a valid date string",
+    }).optional(),
 });

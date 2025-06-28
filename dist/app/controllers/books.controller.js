@@ -39,7 +39,7 @@ exports.booksRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 
             .sort({
             [sortBy]: sort === "asc" ? "asc" : "desc",
         })
-            .limit(limit ? parseInt(limit) : 0);
+            .limit(limit ? parseInt(limit) : 10);
         res.status(200).json({
             success: true,
             message: "Books retrieved successfully",

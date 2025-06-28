@@ -14,5 +14,7 @@ exports.bookZod = zod_1.z.object({
 exports.borrowZod = zod_1.z.object({
     book: zod_1.z.string(),
     quantity: zod_1.z.number(),
-    dueDate: zod_1.z.date().optional(),
+    dueDate: zod_1.z.string().refine((val) => !isNaN(Date.parse(val)), {
+        message: "dueDate must be a valid date string",
+    }).optional(),
 });
