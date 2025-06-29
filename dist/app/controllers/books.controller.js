@@ -35,9 +35,10 @@ exports.booksRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 
     try {
         let { filter, sortBy, sort, limit } = req.query;
         const query = filter ? { genre: filter } : {};
+        sortBy = sortBy || {};
         let books = yield books_model_1.Book.find(query)
             .sort({
-            [sortBy]: sort === "asc" ? "asc" : "desc",
+            [sortBy]: sort === "desc" ? "desc" : "asc",
         })
             .limit(limit ? parseInt(limit) : 10);
         res.status(200).json({

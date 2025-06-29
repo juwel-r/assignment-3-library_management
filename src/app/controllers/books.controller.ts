@@ -27,10 +27,11 @@ booksRouter.get(
     try {
       let { filter, sortBy, sort, limit } = req.query;
       const query = filter ? { genre: filter } : {};
+      sortBy = sortBy || {};
 
       let books = await Book.find(query)
         .sort({
-          [sortBy as string]: sort === "asc" ? "asc" : "desc",
+          [sortBy as string]: sort === "desc" ? "desc" : "asc",
         })
         .limit(limit ? parseInt(limit as string) : 10);
       res.status(200).json({
